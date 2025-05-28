@@ -140,6 +140,93 @@
         .update-form.active {
             display: block;
         }
+
+        /* Add these styles for better project display */
+        .project-card {
+            border: 1px solid var(--primary-color);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .project-type {
+            display: inline-block;
+            padding: 4px 8px;
+            background-color: var(--primary-color);
+            color: var(--background-color);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .project-timeline {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .tech-stack {
+            margin: 10px 0;
+        }
+
+        .tech-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+            margin: 2px;
+            font-size: 0.9em;
+        }
+
+        .project-links {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .project-link {
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .project-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .project-link.github {
+            background-color: var(--secondary-color);
+            border: 1px solid #444;
+            color: var(--text-color);
+        }
+
+        .project-link.github:hover {
+            background-color: #2f363d;
+        }
+
+        .project-link.demo {
+            background-color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            color: var(--background-color);
+        }
+
+        .project-link.demo:hover {
+            background-color: #00cc00;
+        }
+
+        .project-link i {
+            font-size: 1.1em;
+        }
     </style>
 </head>
 <body>
@@ -256,16 +343,41 @@
                     <input type="text" id="projectTitle" name="title" required>
                 </div>
                 <div class="form-group">
-                    <label for="projectDescription">Description</label>
-                    <textarea id="projectDescription" name="description" rows="4" required></textarea>
+                    <label for="projectSummary">Project Summary</label>
+                    <textarea id="projectSummary" name="summary" rows="4" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="projectTechnologies">Technologies Used</label>
-                    <input type="text" id="projectTechnologies" name="technologies" placeholder="Comma-separated list" required>
+                    <label for="projectType">Project Type</label>
+                    <select id="projectType" name="type" required>
+                        <option value="Web Application">Web Application</option>
+                        <option value="Mobile App">Mobile App</option>
+                        <option value="Security Tool">Security Tool</option>
+                        <option value="Research Project">Research Project</option>
+                        <option value="Network Security">Network Security</option>
+                        <option value="Penetration Testing">Penetration Testing</option>
+                        <option value="Other">Other</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label for="projectLink">Project Link</label>
-                    <input type="text" id="projectLink" name="link" placeholder="GitHub or live demo link">
+                    <label for="projectTechStack">Tech Stack / Tools Used</label>
+                    <textarea id="projectTechStack" name="techStack" rows="2" placeholder="Comma-separated list of technologies and tools" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="projectStartDate">Start Date</label>
+                    <input type="date" id="projectStartDate" name="startDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectEndDate">End Date</label>
+                    <input type="date" id="projectEndDate" name="endDate">
+                    <small>(Leave empty if ongoing)</small>
+                </div>
+                <div class="form-group">
+                    <label for="projectGithubLink">GitHub Link</label>
+                    <input type="text" id="projectGithubLink" name="githubLink" placeholder="GitHub repository URL">
+                </div>
+                <div class="form-group">
+                    <label for="projectDemoLink">Demo Link</label>
+                    <input type="text" id="projectDemoLink" name="demoLink" placeholder="Live demo URL">
                 </div>
                 <button type="submit" class="btn">Add Project</button>
             </form>
@@ -327,6 +439,18 @@
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
                 
+                // Special handling for project links
+                if (formId === 'projectsForm') {
+                    const githubLink = data.githubLink || '';
+                    const demoLink = data.demoLink || '';
+                    delete data.githubLink;
+                    delete data.demoLink;
+                    data.links = {
+                        github: githubLink,
+                        demo: demoLink
+                    };
+                }
+                
                 try {
                     const response = await fetch('/api/update-portfolio', {
                         method: 'POST',
@@ -342,7 +466,6 @@
                     if (response.ok) {
                         alert('Updated successfully!');
                         form.reset();
-                        // Refresh the items list if applicable
                         if (['skills', 'education', 'certifications', 'projects'].includes(formId.replace('Form', ''))) {
                             loadItems(formId.replace('Form', ''));
                         }
@@ -450,16 +573,40 @@
                                             <input type="text" name="title" value="${item.title}" required>
                                         </div>
                                         <div class="form-group">
-                                            <label>Description</label>
-                                            <textarea name="description" rows="4" required>${item.description}</textarea>
+                                            <label>Summary</label>
+                                            <textarea name="summary" rows="4" required>${item.summary}</textarea>
                                         </div>
                                         <div class="form-group">
-                                            <label>Technologies Used</label>
-                                            <input type="text" name="technologies" value="${item.technologies}" required>
+                                            <label>Project Type</label>
+                                            <select name="type" required>
+                                                <option value="Web Application" ${item.type === 'Web Application' ? 'selected' : ''}>Web Application</option>
+                                                <option value="Mobile App" ${item.type === 'Mobile App' ? 'selected' : ''}>Mobile App</option>
+                                                <option value="Security Tool" ${item.type === 'Security Tool' ? 'selected' : ''}>Security Tool</option>
+                                                <option value="Research Project" ${item.type === 'Research Project' ? 'selected' : ''}>Research Project</option>
+                                                <option value="Network Security" ${item.type === 'Network Security' ? 'selected' : ''}>Network Security</option>
+                                                <option value="Penetration Testing" ${item.type === 'Penetration Testing' ? 'selected' : ''}>Penetration Testing</option>
+                                                <option value="Other" ${item.type === 'Other' ? 'selected' : ''}>Other</option>
+                                            </select>
                                         </div>
                                         <div class="form-group">
-                                            <label>Project Link</label>
-                                            <input type="text" name="link" value="${item.link || ''}">
+                                            <label>Tech Stack</label>
+                                            <textarea name="techStack" rows="2" placeholder="Comma-separated list of technologies" required>${item.techStack || ''}</textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Start Date</label>
+                                            <input type="date" name="startDate" value="${item.startDate}" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>End Date</label>
+                                            <input type="date" name="endDate" value="${item.endDate || ''}" placeholder="Leave empty if ongoing">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>GitHub Link</label>
+                                            <input type="text" name="githubLink" value="${item.links?.github || ''}" placeholder="GitHub repository URL">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Demo Link</label>
+                                            <input type="text" name="demoLink" value="${item.links?.demo || ''}" placeholder="Live demo URL">
                                         </div>
                                         <button type="submit" class="btn">Update Project</button>
                                     </form>
@@ -467,17 +614,49 @@
                                 break;
                         }
 
-                        return `
-                            <div class="item-card">
-                                <h3>${item.title || item.name}</h3>
-                                <p>${item.description}</p>
-                                <div class="item-actions">
-                                    <button class="update-btn" onclick="toggleUpdateForm(${item.id})">Update</button>
-                                    <button class="delete-btn" onclick="deleteItem('${section}', ${item.id})">Delete</button>
+                        if (section === 'projects') {
+                            return `
+                                <div class="item-card">
+                                    <span class="project-type">${item.type || ''}</span>
+                                    <h3>${item.title}</h3>
+                                    <div class="project-timeline">
+                                        <i class="far fa-calendar-alt"></i> 
+                                        ${item.startDate}${item.endDate ? ` - ${item.endDate}` : ' - Present'}
+                                    </div>
+                                    <p>${item.summary}</p>
+                                    <div class="tech-stack">
+                                        ${(item.techStack || '').split(',').map(tech => `<span class="tech-tag">${tech.trim()}</span>`).join('')}
+                                    </div>
+                                    <div class="project-links">
+                                        ${item.links?.github ? 
+                                            `<a href="${item.links.github}" target="_blank" class="project-link github">
+                                                <i class="fab fa-github"></i> Code
+                                            </a>` : ''}
+                                        ${item.links?.demo ? 
+                                            `<a href="${item.links.demo}" target="_blank" class="project-link demo">
+                                                <i class="fas fa-external-link-alt"></i> Demo
+                                            </a>` : ''}
+                                    </div>
+                                    <div class="item-actions">
+                                        <button class="update-btn" onclick="toggleUpdateForm(${item.id})">Update</button>
+                                        <button class="delete-btn" onclick="deleteItem('${section}', ${item.id})">Delete</button>
+                                    </div>
+                                    ${updateFormHTML}
                                 </div>
-                                ${updateFormHTML}
-                            </div>
-                        `;
+                            `;
+                        } else {
+                            return `
+                                <div class="item-card">
+                                    <h3>${item.name || item.degree || ''}</h3>
+                                    <p>${item.description}</p>
+                                    <div class="item-actions">
+                                        <button class="update-btn" onclick="toggleUpdateForm(${item.id})">Update</button>
+                                        <button class="delete-btn" onclick="deleteItem('${section}', ${item.id})">Delete</button>
+                                    </div>
+                                    ${updateFormHTML}
+                                </div>
+                            `;
+                        }
                     }).join('');
 
                     // Add update form submit handlers
@@ -487,6 +666,18 @@
                             const formData = new FormData(e.target);
                             const data = Object.fromEntries(formData.entries());
                             data.id = parseInt(e.target.dataset.id);
+
+                            // Special handling for project links in update form
+                            if (section === 'projects') {
+                                const githubLink = data.githubLink || '';
+                                const demoLink = data.demoLink || '';
+                                delete data.githubLink;
+                                delete data.demoLink;
+                                data.links = {
+                                    github: githubLink,
+                                    demo: demoLink
+                                };
+                            }
 
                             try {
                                 const response = await fetch(`/api/update-${section}-item/${data.id}`, {

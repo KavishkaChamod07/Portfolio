@@ -216,6 +216,63 @@ h2 {
     gap: 2rem;
 }
 
+.project-links {
+    margin-top: 15px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.project-link {
+    padding: 8px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    justify-content: center;
+    border: 2px solid var(--primary-color);
+    background-color: var(--background-color);
+}
+
+.project-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px var(--primary-color);
+}
+
+.project-link.github {
+    background-color: var(--background-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.project-link.github:hover {
+    background-color: rgba(0, 255, 0, 0.1);
+}
+
+.project-link.github i {
+    font-size: 1.2em;
+}
+
+.project-link.demo {
+    background-color: #00ff00;
+    border-color: #00ff00;
+    color: #000000;
+}
+
+.project-link.demo:hover {
+    background-color: #00cc00;
+    border-color: #00cc00;
+}
+
+.project-link i {
+    font-size: 1.2em;
+}
+
 /* Contact Form */
 .contact-container {
     max-width: 800px;

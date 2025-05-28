@@ -1,18 +1,10 @@
 [
-  {
-    "degree": "BSc (Hons) in Information Technology specialized in Cyber Security",
-    "institution": "Sri Lanka Institute of Information Technology",
-    "startDate": "2021-02-01",
-    "endDate": "2025-03-09",
-    "description": "GPA 3.28",
-    "id": 1748420929060
-  },
-  {
-    "degree": "Higher National Diploma in Information Technology",
-    "institution": "Sri Lanka Institute of Information Technology",
-    "startDate": "2021-01-02",
-    "endDate": "2023-09-30",
-    "description": "GPA 3.25",
-    "id": 1748422241038
-  }
+    {
+        "id": 1,
+        "degree": "BSc (Hons) in Information Technology - Cyber Security",
+        "institution": "Sri Lanka Institute of Information Technology (SLIIT)",
+        "startDate": "2020-09-01",
+        "endDate": "",
+        "description": "Specializing in Cyber Security with focus on network security, ethical hacking, and cyber defense strategies. Key courses include cryptography, network security, digital forensics, and penetration testing."
+    }
 ]

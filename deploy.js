@@ -53,7 +53,7 @@ async function updateHTML() {
 
             // Update each skill category
             for (const [category, skills] of Object.entries(skillsByCategory)) {
-                const skillsHTML = skills.map(skill => `<li>${skill}</li>`).join('\\n');
+                const skillsHTML = skills.map(skill => `<li>${skill}</li>`).join('\n');
                 const categoryId = category.toLowerCase().replace(/\s+/g, '-');
                 htmlContent = htmlContent.replace(
                     new RegExp(`<div class="skill-category"[^>]*data-category="${categoryId}">[\\s\\S]*?<\\/div>`),
@@ -75,7 +75,7 @@ async function updateHTML() {
                         <p class="description">${edu.description}</p>
                     </div>
                 </div>
-            `).join('\\n');
+            `).join('\n');
             
             htmlContent = htmlContent.replace(
                 /<div class="timeline">[\s\S]*?<\/div>/,
@@ -96,7 +96,7 @@ async function updateHTML() {
                         <p class="description">${cert.description}</p>
                     </div>
                 </div>
-            `).join('\\n');
+            `).join('\n');
             
             htmlContent = htmlContent.replace(
                 /<div class="cert-grid">[\s\S]*?<\/div>/,
@@ -105,16 +105,40 @@ async function updateHTML() {
         }
 
         if (Array.isArray(data.projects)) {
-            const projectsHTML = data.projects.map(project => `
-                <div class="project-card">
-                    <h3>${project.title}</h3>
-                    <p>${project.description}</p>
-                    <div class="technologies">
-                        ${project.technologies.split(',').map(tech => `<span class="tech-tag">${tech.trim()}</span>`).join('')}
+            const projectsHTML = data.projects.map(project => {
+                const links = [];
+                if (project.links) {
+                    if (project.links.github) {
+                        links.push(`<a href="${project.links.github}" target="_blank" class="project-link github">
+                            <i class="fab fa-github"></i> Code
+                        </a>`);
+                    }
+                    if (project.links.demo) {
+                        links.push(`<a href="${project.links.demo}" target="_blank" class="project-link demo">
+                            <i class="fas fa-external-link-alt"></i> Demo
+                        </a>`);
+                    }
+                }
+
+                const timeline = project.endDate 
+                    ? `${project.startDate} - ${project.endDate}`
+                    : `${project.startDate} - Present`;
+                
+                return `
+                    <div class="project-card" data-github="${project.links?.github || ''}">
+                        <span class="project-type">${project.type}</span>
+                        <h3>${project.title}</h3>
+                        <div class="project-timeline"><i class="far fa-calendar-alt"></i> ${timeline}</div>
+                        <p>${project.summary}</p>
+                        <div class="tech-stack">
+                            ${project.techStack.split(',').map(tech => `<span class="tech-tag">${tech.trim()}</span>`).join('')}
+                        </div>
+                        <div class="project-links">
+                            ${links.join('\n')}
+                        </div>
                     </div>
-                    ${project.link ? `<a href="${project.link}" target="_blank" class="project-link">View Project</a>` : ''}
-                </div>
-            `).join('\\n');
+                `;
+            }).join('\n');
             
             htmlContent = htmlContent.replace(
                 /<div class="project-grid">[\s\S]*?<\/div>/,
