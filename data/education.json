@@ -6,5 +6,13 @@
     "endDate": "2025-03-09",
     "description": "GPA 3.28",
     "id": 1748420929060
+  },
+  {
+    "degree": "Higher National Diploma in Information Technology",
+    "institution": "Sri Lanka Institute of Information Technology",
+    "startDate": "2021-01-02",
+    "endDate": "2023-09-30",
+    "description": "GPA 3.25",
+    "id": 1748422241038
   }
 ]

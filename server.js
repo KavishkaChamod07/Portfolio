@@ -191,6 +191,66 @@ app.delete('/api/delete-:section-item/:id', async (req, res) => {
     }
 });
 
+// Update an item
+app.put('/api/update-:section-item/:id', async (req, res) => {
+    const { section, id } = req.params;
+    const updateData = req.body;
+    const filePath = DATA_FILES[section];
+
+    if (!filePath) {
+        return res.status(400).json({ error: 'Invalid section' });
+    }
+
+    try {
+        let data = await readDataFile(filePath);
+        if (data === null) {
+            return res.status(500).json({ error: 'Error reading data file' });
+        }
+
+        if (!Array.isArray(data)) {
+            return res.status(400).json({ error: 'Section does not support item updates' });
+        }
+
+        // Find and update the item
+        const itemIndex = data.findIndex(item => item.id === parseInt(id));
+        if (itemIndex === -1) {
+            return res.status(404).json({ error: 'Item not found' });
+        }
+
+        // Preserve the ID and update other fields
+        updateData.id = parseInt(id);
+        data[itemIndex] = updateData;
+
+        const success = await writeDataFile(filePath, data);
+        if (!success) {
+            return res.status(500).json({ error: 'Error writing data file' });
+        }
+
+        // Run the deployment script
+        const deploy = spawn('node', ['deploy.js']);
+        
+        deploy.stdout.on('data', (data) => {
+            console.log(`Deploy output: ${data}`);
+        });
+
+        deploy.stderr.on('data', (data) => {
+            console.error(`Deploy error: ${data}`);
+        });
+
+        deploy.on('close', (code) => {
+            if (code !== 0) {
+                console.error(`Deploy process exited with code ${code}`);
+                return res.status(500).json({ error: 'Deployment failed' });
+            }
+            res.json({ success: true });
+        });
+
+    } catch (error) {
+        console.error('Error updating item:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Function to update the main HTML file
 async function updateMainHTML() {
     try {
